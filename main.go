@@ -64,9 +64,9 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer sess.Close()
+	defer sess.Close() // close session after termination
 
-	fmt.Println("bot is online brother") // close session after termination
+	fmt.Println("bot is online brother")
 
 
 	// keep bot running until os interrupt (CTRL + C)
