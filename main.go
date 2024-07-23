@@ -57,8 +57,7 @@ func main() {
 		}
 	})
 
-	sess.Identify.Intents = discordgo.IntentsAllWithoutPrivileged
-
+	sess.Identify.Intents = discordgo.IntentsAllWithoutPrivileged // hmm
 
 	err = sess.Open() // open session
 	if err != nil {
