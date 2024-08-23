@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"net/url"
 	"os"
+	"os/exec"
 	"os/signal"
 	"strings"
 	"syscall"
@@ -72,5 +74,38 @@ func messageCreate(s *discordgo.Session, m *discordgo.MessageCreate) {
 		}
 		choice := rand.Intn(len(help))
 		s.ChannelMessageSend(m.ChannelID, help[choice])
+	case cmd == "play": // will likely have to break logic out to keep clean
+		if len(args) >= 3 { // verify there is a url argument -- args[2]
+			url := args[2]
+			if isValidURL(url) {
+				title, err := download(url)
+				if err != nil {
+					panic(err)
+				}
+				message := "Now Playing: " + title
+				s.ChannelMessageSend(m.ChannelID, message)
+			} else {
+				s.ChannelMessageSend(m.ChannelID, "invalid url")
+			}
+		} else {
+			s.ChannelMessageSend(m.ChannelID, "you have to provide a link for me to play the music")
+		}
 	}
+}
+
+// download downloads the specified file
+func download(url string) (filename string, err error) {
+	cmd := exec.Command("yt-dlp", "-x", "--audio-format", "opus", url, "--print", "after_move:title")
+	out, err := cmd.Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println(string(out))
+	return string(out), nil
+}
+
+// isValidURL verifies url is valid
+func isValidURL(str string) bool {
+	u, err := url.Parse(str)
+	return err == nil && u.Scheme != "" && u.Host != ""
 }
